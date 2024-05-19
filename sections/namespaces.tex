@@ -1,0 +1,80 @@
+% Section 1 - Namespaces
+% Roberto Masocco <roberto.masocco@uniroma2.it>
+% May 31, 2023
+
+% ### Namespaces ###
+\section{Namespaces}
+
+% --- Why namespaces? ---
+\begin{frame}{Why namespaces?}
+  \begin{exampleblock}{Example: Two driver nodes}
+    \begin{itemize}
+      \item \textbf{Two sensor driver nodes} must publish on a same \texttt{sensor} topic.
+      \item By default, the two nodes have the \textbf{same name} since it is hardcoded.
+      \item The two driver nodes are \textbf{not connected to the same sensor}, but to two distinct ones of the same kind.
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+\begin{frame}{Why namespaces?}
+  \begin{exampleblock}{Example: Two robots}
+    \begin{itemize}
+      \item Two distinct robots are \textbf{deployed in the same network}.
+      \item The two robots have \textbf{the same hardware}, and must perform \textbf{the same tasks}.
+      \item Thus, the two robots have \textbf{the same software architecture}.
+    \end{itemize}
+  \end{exampleblock}
+\end{frame}
+\begin{frame}{Why namespaces?}
+  Just to name a few of the \textbg{collisions} that may arise in the previous scenarios:
+  \begin{itemize}
+    \item \textbg{node names} must be unique to each node, otherwise the \textbg{node graph} will be \textbg{ambiguous}, and \textbg{undefined behavior} may occur;
+    \item \textbg{topic names} may not be unique, but they must allow to \textbg{distinguish different entities};
+    \item \textbg{service names} as above;
+    \item \textbg{action names} as above.
+  \end{itemize}
+  \vspace{10pt}
+  We need a way to \textbg{group entity names}. That's what \textbg{namespaces} are for.
+\end{frame}
+
+% --- Defining ROS 2 namespaces ---
+\begin{frame}{Defining ROS 2 namespaces}{The hierarchical structure}
+  Remember the \texttt{\textasciitilde/} in topic names? That sequence identifies the \textbg{namespace} of the entity.\\
+  \textbg{Entity names} follow the same \textbg{hierarchical structure} of \textbg{UNIX file system paths}:
+  \newline\newline
+  \texttt{/<namespace>/<node\_name>/<entity\_name>}
+  \newline\newline
+  where:
+  \begin{itemize}
+    \item \texttt{<namespace>} is the \textbg{namespace} of the entity, and can be made of \textbg{multiple nested levels};
+    \item \texttt{<node\_name>} is the \textbg{name of the node} that \textbg{owns} the entity;
+    \item \texttt{<entity\_name>} is the \textbg{name of the entity}: topic, service, action, parameter...
+  \end{itemize}
+  Thus, while coding, prepending \texttt{\textasciitilde/} in front of the entity name will \textbg{automatically prepend the namespace and owner node name} upon name resolution.
+\end{frame}
+\begin{frame}{Defining ROS 2 namespaces}{Coding tips}
+  While coding, prepending \texttt{\textasciitilde/} in front of the entity name will \textbg{automatically prepend the namespace and owner node name} upon name resolution. This way, you do not have to worry about namespaces while \textbg{coding} your nodes, only when \textbg{launching} them.\\
+  For example, assuming we are working on a node named \texttt{my\_node}:
+  \newline\newline
+  \texttt{this->create\_publisher<String>("\textasciitilde/my\_topic");}
+  \newline\newline
+  creates a publisher whose topic name may be resolved to either:
+  \begin{itemize}
+    \item \texttt{"/my\_node/my\_topic"} if the node is launched without a namespace;
+    \item \texttt{"/my\_namespace/my\_node/my\_topic"} if the node is launched with the \texttt{my\_namespace} namespace.
+  \end{itemize}
+  The same holds for \textbg{services} and \textbg{actions}. For \textbg{nodes} and \textbg{parameters} this is \textbg{automatically done} by the middleware and you must only specify the name of the entity upon creation.
+\end{frame}
+\begin{frame}{Remapping ROS 2 entity names}{CLI commands}
+  Names can be \textbg{specified} or \textbg{overridden} when starting applications with \texttt{ros2 run}:
+  \newline\newline
+  \texttt{ros2 run PACKAGE\_NAME EXECUTABLE\_NAME -{}-ros-args -r <old\_name>:=<new\_name>}
+  \newline\newline
+  where \texttt{<old\_name>} can be one of:
+  \begin{itemize}
+    \item \texttt{\_{}\_ns} to remap the \textbg{namespace};
+    \item \texttt{\_{}\_node} to remap the \textbg{node name};
+    \item the actual name of a \textbg{topic}, \textbg{service} or \textbg{action} that you want to remap.
+  \end{itemize}
+  \vspace{10pt}
+  Multiple remappings can be specified by \textbg{repeating} the \texttt{-r} option.
+\end{frame}

@@ -1,0 +1,131 @@
+% Section 2 - Node parameters
+% Roberto Masocco <roberto.masocco@uniroma2.it>
+% May 31, 2023
+
+% ### Node parameters ###
+\section{Node parameters}
+
+% --- Why parameters? ---
+\begin{frame}{Why parameters?}
+	\begin{exampleblock}{Example: The camera driver node}
+		Suppose you have to integrate an \textbf{RGB camera} into your architecture, by writing a ROS 2 node that acts as a \textbf{driver}:
+		\begin{itemize}
+			\item the node uses the necesary libraries to interact with the camera hardware;
+			\item RGB frames are constantly published on some topic;
+			\item during constant operation, you would like to \textbf{change some values} to tune image quality, \emph{e.g.}, exposure.
+		\end{itemize}
+	\end{exampleblock}
+	You could \textbg{encode} such parameters in your program, or pass them as \textbg{command-line arguments}, but this is just the beginning...
+\end{frame}
+\begin{frame}{Why parameters?}
+	\begin{exampleblock}{Example: The controller node}
+		Suppose you implemented some \textbf{discrete-time control law} in a ROS 2 node:
+		\begin{itemize}
+			\item subscribers constantly sample sensor measurements, and callbacks embed the control algorithm;
+			\item the control law depends on some \textbf{parameters};
+			\item you would like to change the parameters without having to \textbf{recompile} your software each time;
+			\item you would like to have \textbf{other modules} to change such parameters automatically if need be, and to \textbf{automatically react} to such changes.
+		\end{itemize}
+	\end{exampleblock}
+	... Middleware support is evidently needed.
+\end{frame}
+
+% --- Node parameters ---
+\begin{frame}{Node parameters}
+	A ROS 2 node can have one or more \textbg{parameters}: values that can be specified at \textbg{startup}, changed at \textbg{runtime}, and used in the implementation.\\\vspace{10pt}
+	The parameter system is \textbg{decentralized} and \textbg{built on messages and services}: each node has its own parameters and related services, and updates are \textbg{broadcasted} to every other node over the \texttt{/parameter\_events} topic (try to inspect it! Remember to log it too during experiments!).\\\vspace{10pt}
+	Parameters can be \textbg{listed}, \textbg{queried}, \textbg{described} and \textbg{set}, using either \textbg{CLI tools} or \textbg{service calls}; \textbg{YAML} configuration files may be \textbg{loaded} or \textbg{dumped}.\\\vspace{10pt}
+	It is possible to specify what to do when a parameter update is requested by defining a \textbg{callback}.\\\vspace{10pt}
+	A parameter may be \textbg{read-only} and its type may be \textbg{dynamic}.
+\end{frame}
+
+% --- Parameter types ---
+\begin{frame}{Parameter types}
+	From the \texttt{rcl\_interfaces/ParameterType} message file:
+	\begin{itemize}
+		\item \texttt{BOOL}
+		\item \texttt{INTEGER}
+		\item \texttt{DOUBLE}
+		\item \texttt{STRING}
+		\item \texttt{BYTE\_ARRAY}
+		\item \texttt{BOOL\_ARRAY}
+		\item \texttt{INTEGER\_ARRAY}
+		\item \texttt{DOUBLE\_ARRAY}
+		\item \texttt{STRING\_ARRAY}
+	\end{itemize}
+\end{frame}
+
+% --- Parameters CLI commands ---
+\begin{frame}{Parameters CLI commands}
+	\begin{itemize}
+		\item \texttt{ros2 param list NODE\_NAME}\\Lists available parameters of a node.
+		\item \texttt{ros2 param describe NODE\_NAME PARAMETER\_NAME}\\Shows information about a parameter.
+		\item \texttt{ros2 param get NODE\_NAME PARAMETER\_NAME}\\Returns the value of a parameter.
+		\item \texttt{ros2 param set NODE\_NAME PARAMETER\_NAME VALUE}\\Sets a given value for a parameter.
+		\item \texttt{ros2 param dump NODE\_NAME}\\Dumps the current parameter configuration in a YAML file.
+		\item \texttt{ros2 param load NODE\_NAME PARAMETER\_FILE}\\Loads parameters from a YAML file.
+	\end{itemize}
+\end{frame}
+\begin{frame}{Parameters CLI commands}
+  When starting a node with \texttt{ros2 run}, it is possible to specify parameters as \textbg{command-line arguments}:
+  \newline\newline
+  \texttt{ros2 run PACKAGE\_NAME EXECUTABLE\_NAME -{}-ros-args -p param\_name:=param\_value}
+  \newline\newline
+  Multiple parameter values can be specified by \textbg{repeating} the \texttt{-p} option.\\
+  It is also possible to specify a \textbg{configuration file}:
+  \newline\newline
+  \texttt{ros2 run PACKAGE\_NAME EXECUTABLE\_NAME -{}-ros-args -{}-params-file CONFIG\_FILE}
+\end{frame}
+
+% --- Parameters services ---
+\begin{frame}{Parameters services}
+  When a node is launched, it \textbg{automatically} instantiates the following \textbg{services}:
+  \begin{itemize}
+    \item \texttt{\textasciitilde/get\_parameters}
+    \item \texttt{\textasciitilde/set\_parameters}
+    \item \texttt{\textasciitilde/list\_parameters}
+    \item \texttt{\textasciitilde/describe\_parameters}
+    \item \texttt{\textasciitilde/get\_parameter\_types}
+    \item \texttt{\textasciitilde/set\_parameters\_atomically}
+  \end{itemize}
+  Try to inspect them with \texttt{ros2 service type}, or call them from the command line! They all take \textbg{groups of parameters} on which to operate, and can be called either from a \textbg{CLI tool} or from a \textbg{client node}: that is the way to go if you want to \textbg{automate parameter updates}.
+\end{frame}
+
+% --- Coding with parameters ---
+\begin{frame}{Coding with parameters}{Tips and best practices}
+	\begin{itemize}
+		\item Parameters are referred to by their \textbg{name}.
+		\item Before being used, a parameter must be \textbg{declared} to the middleware: this is usually done in the constructor of a node specifying their \textbg{name} and \textbg{default value} using the \texttt{declare\_parameter} API.
+		\item Parameter values can be retrieved \textbg{atomically} by calling the \texttt{get\_parameter} API, which returns an \texttt{rclcpp::Parameter} object that must be \textbg{casted} to the appropriate type using the \texttt{as\_*} methods (\texttt{as\_int()}, \texttt{as\_bool()}, ecc.).
+    \item Accessing the middleware's internals to retrieve parameters might be \textbg{slow}: define \textbg{class member variables} that track the value of each parameter by being updated each time the parameter is.
+	\end{itemize}
+\end{frame}
+\begin{frame}{Coding with parameters}{Suggested TODO list}
+  \begin{enumerate}
+    \item Define \textbg{class member variables} to track the value of each parameter.
+    \item Define a \textbg{callback} to be called when a parameter is updated (there's an API for this).
+    \item \textbg{Declare} the parameters in the \textbg{constructor} of the node; do this \textbg{first}, so that the parameters are available as soon as the node is started.
+    \item \textbg{Register} the callback to the middleware.
+    \item \textbg{Use} the parameter values in the implementation.
+  \end{enumerate}
+\end{frame}
+\begin{frame}{Coding with parameters}{About declarations}
+  There are \textbg{two APIs}, corresponding to \textbg{two ways} to declare parameters:
+  \begin{enumerate}
+    \item the \textbg{lazy way}: \texttt{declare\_parameter(...)} specifying \textbg{only the name and the default value} of the parameter;
+    \item the \textbg{complete way}: \texttt{declare\_parameter(...)} specifying \textbg{all the information} about the parameter, including its \textbg{type}, \textbg{description}, \textbg{read-only} flag, \textbg{max} and \textbg{min} values, \textbg{constraints} and more, using a \texttt{rcl\_interfaces::msg::ParameterDescriptor} object.
+  \end{enumerate}
+  \begin{alertblock}{}
+    \centering
+    The complete way is \textbr{recommended}, but induces a lot of \textbr{boilerplate code}!\\
+    Check out our \href{https://github.com/IntelligentSystemsLabUTV/dua-utils/tree/master/src/params_manager}{\color{blue}\underline{\texttt{params\_manager}}} library!
+  \end{alertblock}
+\end{frame}
+
+% --- Example: Parametric publisher ---
+\begin{frame}{Example: Parametric publisher}
+  \begin{block}{}
+    \centering
+    Now go have a look at the \href{https://github.com/IntelligentSystemsLabUTV/ros2-examples/tree/humble/src/cpp/parameters_example_cpp}{\color{blue}\underline{\texttt{ros2-examples/src/cpp/parameters\_example\_cpp}}} package!
+  \end{block}
+\end{frame}
