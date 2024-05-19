@@ -39,10 +39,10 @@
 % --- Defining ROS 2 namespaces ---
 \begin{frame}{Defining ROS 2 namespaces}{The hierarchical structure}
   Remember the \texttt{\textasciitilde/} in topic names? That sequence identifies the \textbg{namespace} of the entity.\\
-  \textbg{Entity names} follow the same \textbg{hierarchical structure} of \textbg{UNIX file system paths}:
-  \newline\newline
+  \textbg{Entity names} follow the same \textbg{hierarchical structure} of \textbg{UNIX file system paths}:\\
+  \bigskip
   \texttt{/<namespace>/<node\_name>/<entity\_name>}
-  \newline\newline
+  \bigskip
   where:
   \begin{itemize}
     \item \texttt{<namespace>} is the \textbg{namespace} of the entity, and can be made of \textbg{multiple nested levels};
@@ -53,10 +53,10 @@
 \end{frame}
 \begin{frame}{Defining ROS 2 namespaces}{Coding tips}
   While coding, prepending \texttt{\textasciitilde/} in front of the entity name will \textbg{automatically prepend the namespace and owner node name} upon name resolution. This way, you do not have to worry about namespaces while \textbg{coding} your nodes, only when \textbg{launching} them.\\
-  For example, assuming we are working on a node named \texttt{my\_node}:
-  \newline\newline
-  \texttt{this->create\_publisher<String>("\textasciitilde/my\_topic");}
-  \newline\newline
+  For example, assuming we are working on a node named \texttt{my\_node}:\\
+  \bigskip
+  \texttt{this->create\_publisher<String>("\textasciitilde/my\_topic");}\\
+  \bigskip
   creates a publisher whose topic name may be resolved to either:
   \begin{itemize}
     \item \texttt{"/my\_node/my\_topic"} if the node is launched without a namespace;
@@ -65,10 +65,10 @@
   The same holds for \textbg{services} and \textbg{actions}. For \textbg{nodes} and \textbg{parameters} this is \textbg{automatically done} by the middleware and you must only specify the name of the entity upon creation.
 \end{frame}
 \begin{frame}{Remapping ROS 2 entity names}{CLI commands}
-  Names can be \textbg{specified} or \textbg{overridden} when starting applications with \texttt{ros2 run}:
-  \newline\newline
-  \texttt{ros2 run PACKAGE\_NAME EXECUTABLE\_NAME -{}-ros-args -r <old\_name>:=<new\_name>}
-  \newline\newline
+  Names can be \textbg{specified} or \textbg{overridden} when starting applications with \texttt{ros2 run}:\\
+  \bigskip
+  \texttt{ros2 run PACKAGE\_NAME EXECUTABLE\_NAME -{}-ros-args -r <old\_name>:=<new\_name>}\\
+  \bigskip
   where \texttt{<old\_name>} can be one of:
   \begin{itemize}
     \item \texttt{\_{}\_ns} to remap the \textbg{namespace};

@@ -7,10 +7,10 @@
 
 % --- Scripting ROS 2 architectures ---
 \begin{frame}{Scripting ROS 2 architectures}
-	A ROS 2-based control architecture for a robot can easily get to have 20 nodes or more.
-	\newline\newline
-	It then becomes critical to be able to \textbg{automate startup and configuration} of all the modules, or some subsets, also for testing.
-	\newline\newline
+	A ROS 2-based control architecture for a robot can easily get to have 20 nodes or more.\\
+	\bigskip
+	It then becomes critical to be able to \textbg{automate startup and configuration} of all the modules, or some subsets, also for testing.\\
+	\bigskip
 	That is what the ROS 2 \textbg{Launch System} is for.
 \end{frame}
 
@@ -50,14 +50,14 @@ def generate_launch_description():
 
 % --- Launch System CLI commands ---
 \begin{frame}{Launch System CLI commands}
-  The main command to \textbg{execute the \texttt{LaunchDescription}} specified in a launch file is
-  \newline\newline
-  \texttt{ros2 launch PACKAGE\_NAME LAUNCH\_FILE}
-  \newline\newline
-  This will start a \textbg{Python interpreter} in your current shell, that will \textbg{parse} the launch file and \textbg{execute} the \texttt{LaunchDescription}. You will \textbg{interface with the underlying processes} through this interpreter instance. You can also specify \textbg{launch arguments} that you will be able to access from within the launch file:
-  \newline\newline
-  \texttt{ros2 launch PACKAGE\_NAME LAUNCH\_FILE ARG1:=VALUE1 ARG2:=VALUE2 ...}
-  \newline\newline
+  The main command to \textbg{execute the \texttt{LaunchDescription}} specified in a launch file is\\
+  \bigskip
+  \texttt{ros2 launch PACKAGE\_NAME LAUNCH\_FILE}\\
+  \bigskip
+  This will start a \textbg{Python interpreter} in your current shell, that will \textbg{parse} the launch file and \textbg{execute} the \texttt{LaunchDescription}. You will \textbg{interface with the underlying processes} through this interpreter instance. You can also specify \textbg{launch arguments} that you will be able to access from within the launch file:\\
+  \bigskip
+  \texttt{ros2 launch PACKAGE\_NAME LAUNCH\_FILE ARG1:=VALUE1 ARG2:=VALUE2 ...}\\
+  \bigskip
   Have a look at the options of this command!
 \end{frame}
 

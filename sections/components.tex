@@ -1,0 +1,60 @@
+% Section 4 - Components
+% Roberto Masocco <roberto.masocco@uniroma2.it>
+% May 21, 2024
+
+% ### Components ###
+\section{Components}
+
+% --- Composable nodes ---
+\begin{frame}{Composable nodes}{Isolation vs integration}
+  A ROS 2-based control architecture for a robot can easily get to have 20 nodes or more.\\
+  \bigskip
+  If each node runs \textbg{in its own process}, its \textbg{errors or crashes} may not affect the behavior of the other nodes, but a lot of system resources are wasted for this (memory, context switches...).\\
+  \bigskip
+  On the other hand, if all nodes run \textbg{in the same process}, they can share resources and memory and ease the burden on the OS, but a \textbg{critical error} in one node may \textbg{affect the others}.\\
+  \bigskip
+  You may even \textbg{load the entire control architecture with a single launch file}!
+\end{frame}
+\begin{frame}{Composable nodes}{The building blocks of a control architecture}
+  When the software of a ROS 2 node is mature enough, it can be compiled into a \textbg{component} (or \textbg{composable node}, formerly \emph{nodelet}) (C++-only feature!).\\
+  \bigskip
+  Components are \textbg{shared libraries}, dynamically loaded into a single \textbg{container process} that hosts an \textbg{executor} and a \textbg{context} (\texttt{pluginlib} library, built around the \texttt{dlopen} system call).\\
+  \bigskip
+  Inside the container, the single executor schedules \textbg{all jobs}, and nodes use \textbg{shared memory} to communicate, bypassing the DDS and the RMW.\\
+  \bigskip
+  Nodes can be \textbg{loaded} (constructed) and \textbg{unloaded} (destructed) at runtime, without restarting the container.\\
+  \bigskip
+  The container process contains a \texttt{rclcpp\_components::ComponentContainer} \textbg{node}, that exposes the \texttt{load\_node}, \texttt{list\_nodes}, and \texttt{unload\_node} \textbg{services}.
+\end{frame}
+\begin{frame}{Composable nodes}{CLI commands}
+  \begin{itemize}
+		\item \texttt{ros2 run rclcpp\_components component\_container}\\Starts a simple component container.
+		\item \texttt{ros2 component list [CONTAINER\_NAME]}\\Lists active components [within the given container].
+		\item \texttt{ros2 component load CONTAINER\_NAME PACKAGE\_NAME PLUGIN\_NAME}\\Loads a component into a container.
+		\item \texttt{ros2 component unload CONTAINER\_NAME COMPONENT\_ID}\\Unloads a component from a container.
+		\item \texttt{ros2 component types}\\Output a list of components registered in the ament index.
+		\item \texttt{ros2 component standalone PACKAGE\_NAME PLUGIN\_NAME}\\Creates a new container and loads the given component into it.
+	\end{itemize}
+\end{frame}
+\begin{frame}{Composable nodes}{Best practices}
+  To compile and use a component, you must:
+  \begin{enumerate}
+    \item add the \texttt{rclcpp\_components} \textbg{dependency};
+    \item add \textbg{macros} to your node class definition code to register the component class;
+    \item build a \textbg{shared library target}, comprising only the node class, within your \texttt{CMakeLists.txt} file;
+    \item \textbg{register the component} with ament within your \texttt{CMakeLists.txt} file;
+    \item launch it using the \texttt{ComposableNodeContainer} \textbg{launch action} and the \texttt{ComposableNode} \textbg{launch description}.
+  \end{enumerate}
+  \begin{block}{}
+		\centering
+		Find more in \href{https://github.com/IntelligentSystemsLabUTV/ros2-examples/blob/humble/components.md}{\color{blue}\underline{\texttt{components.md}}}.
+	\end{block}
+\end{frame}
+
+% --- Example: Composable pub/sub ---
+\begin{frame}{Example: Composable pub/sub}
+  \begin{block}{}
+    \centering
+	  Now go have a look at the \href{https://github.com/IntelligentSystemsLabUTV/ros2-examples/tree/humble/src/cpp/pub_sub_components}{\color{blue}\underline{\texttt{ros2-examples/src/cpp/pub\_sub\_components}}} package!
+  \end{block}
+\end{frame}
